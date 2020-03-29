@@ -3,9 +3,13 @@ int led = 4;
 int button = 5;
 
 
+
 int ledState = HIGH;
 int buttonCurrent;
 int buttonPrev = LOW;
+
+long timeer = 0;
+long debounce = 200;
 
 void setup() {
   // put your setup code here, to run once:
@@ -21,16 +25,17 @@ void loop() {
 
   buttonCurrent = digitalRead(button);
 
-  if (buttonCurrent == HIGH && buttonPrev == LOW){
-    Serial.println("Inside if");
+  if (buttonCurrent == HIGH && buttonPrev == LOW && millis() - timeer > debounce){
+    
     Serial.print(ledState);
     if (ledState == HIGH){
       ledState = LOW;
       Serial.print("low");
     }else{
       ledState = HIGH;
-      Serial.print("HIGHT");
+      Serial.print("HIGH");
     }
+    timeer = millis();
   }
 
   digitalWrite(led, ledState);
