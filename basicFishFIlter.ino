@@ -2,46 +2,46 @@
 int led = 4;
 int button = 5;
 
-
+unsigned long buttonPushedMillis;
+unsigned long ledTurnedOnAt;
+unsigned long turnOffDelay = 5000;
+unsigned long currentMillis;
 
 int ledState = HIGH;
 int buttonCurrent;
-int buttonPrev = LOW;
 
 long timeer = 0;
 long debounce = 200;
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(115200);
   pinMode(button, INPUT);
   pinMode(led, OUTPUT);
-  
+}
 
+void filterOff(){
+      digitalWrite(led, HIGH);
+     ledState = true;
+     // save when the LED turned on
+     ledTurnedOnAt = currentMillis;
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  currentMillis = millis();
 
   buttonCurrent = digitalRead(button);
 
-  if (buttonCurrent == HIGH && buttonPrev == LOW && millis() - timeer > debounce){
-    
-    Serial.print(ledState);
-    if (ledState == HIGH){
-      ledState = LOW;
-      Serial.print("low");
-    }else{
-      ledState = HIGH;
-      Serial.print("HIGH");
-    }
-    timeer = millis();
+  if (buttonCurrent == HIGH && millis() - timeer > debounce){
+    buttonPushedMillis = currentMillis;
+    filterOff();
   }
 
-  digitalWrite(led, ledState);
-  //Serial.print("Here");
-  //Serial.print(buttonCurrent);
-  buttonPrev = buttonCurrent;
-  
+  if (ledState) {
+   if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay) {
+     ledState = false;
+     digitalWrite(led, LOW);
+   }
+ }
+
 
 }
