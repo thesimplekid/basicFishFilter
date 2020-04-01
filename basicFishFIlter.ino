@@ -1,6 +1,7 @@
 
-int led = 4;
+int led = 15;
 int button = 5;
+int switchPin = 4;
 
 unsigned long buttonPushedMillis;
 unsigned long ledTurnedOnAt;
@@ -13,10 +14,14 @@ int buttonCurrent;
 long timeer = 0;
 long debounce = 200;
 
+boolean ledSwitch;
+boolean switchPrev;
+
 void setup() {
   Serial.begin(115200);
   pinMode(button, INPUT);
   pinMode(led, OUTPUT);
+  pinMode(switchPin, INPUT);
 }
 
 void filterOff(){
@@ -26,8 +31,29 @@ void filterOff(){
      ledTurnedOnAt = currentMillis;
 }
 
-void loop() {
+boolean switchOnOff(){
+    boolean  switchState ;
+    if(digitalRead(switchPin) == HIGH){
+      switchState = true;
+  }else{
+    switchState = false;
+  }
+
+  return switchState;
+}
+
+void loop() { 
   currentMillis = millis();
+  ledSwitch = switchOnOff();
+  
+  if (!ledSwitch){
+    digitalWrite(led, HIGH);
+    switchPrev = true;
+  }else{
+    if (switchPrev){
+       digitalWrite(led, LOW);
+       switchPrev = false;
+    }
 
   buttonCurrent = digitalRead(button);
 
@@ -42,6 +68,5 @@ void loop() {
      digitalWrite(led, LOW);
    }
  }
-
-
+  }
 }
