@@ -2,11 +2,13 @@
 int led = 15;
 int button = 5;
 int switchPin = 4;
+int warningLed = 2;
 
 unsigned long buttonPushedMillis;
 unsigned long ledTurnedOnAt;
-unsigned long turnOffDelay = 5000;
+unsigned long turnOffDelay = 10000;
 unsigned long currentMillis;
+unsigned long warningTime = 5000;
 
 int ledState = HIGH;
 int buttonCurrent;
@@ -22,6 +24,7 @@ void setup() {
   pinMode(button, INPUT);
   pinMode(led, OUTPUT);
   pinMode(switchPin, INPUT);
+  pinMode(warningLed, OUTPUT);
 }
 
 void filterOff(){
@@ -63,9 +66,14 @@ void loop() {
   }
 
   if (ledState) {
+    if ((unsigned long)(currentMillis - ledTurnedOnAt) >= warningTime){
+      digitalWrite(warningLed, HIGH);
+    }
+    
    if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay) {
      ledState = false;
      digitalWrite(led, LOW);
+     digitalWrite(warningLed, LOW);
    }
  }
   }
