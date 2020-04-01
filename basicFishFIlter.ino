@@ -1,15 +1,19 @@
 
-int led = 15;
+
+int relay = 15;
 int button = 5;
 int switchPin = 4;
-
-unsigned long buttonPushedMillis;
-unsigned long ledTurnedOnAt;
-unsigned long turnOffDelay = 5000;
-unsigned long currentMillis;
+int warningLed = 2;
 
 int ledState = HIGH;
 int buttonCurrent;
+
+unsigned long buttonPushedMillis;
+unsigned long ledTurnedOnAt;
+unsigned long currentMillis;
+
+unsigned long turnOffDelay = 10000;
+unsigned long warningTime = 5000;
 
 long timeer = 0;
 long debounce = 200;
@@ -18,55 +22,60 @@ boolean ledSwitch;
 boolean switchPrev;
 
 void setup() {
-  Serial.begin(115200);
   pinMode(button, INPUT);
-  pinMode(led, OUTPUT);
+  pinMode(relay, OUTPUT);
   pinMode(switchPin, INPUT);
+  pinMode(warningLed, OUTPUT);
 }
 
-void filterOff(){
-      digitalWrite(led, HIGH);
-     ledState = true;
-     // save when the LED turned on
-     ledTurnedOnAt = currentMillis;
+void filterOff() {
+  digitalWrite(relay, HIGH);
+  ledState = true;
+  // save when the LED turned on
+  ledTurnedOnAt = currentMillis;
 }
 
-boolean switchOnOff(){
-    boolean  switchState ;
-    if(digitalRead(switchPin) == HIGH){
-      switchState = true;
-  }else{
+boolean switchOnOff() {
+  boolean  switchState ;
+  if (digitalRead(switchPin) == HIGH) {
+    switchState = true;
+  } else {
     switchState = false;
   }
 
   return switchState;
 }
 
-void loop() { 
+void loop() {
   currentMillis = millis();
   ledSwitch = switchOnOff();
-  
-  if (!ledSwitch){
-    digitalWrite(led, HIGH);
+
+  if (!ledSwitch) {
+    digitalWrite(relay, HIGH);
     switchPrev = true;
-  }else{
-    if (switchPrev){
-       digitalWrite(led, LOW);
-       switchPrev = false;
+  } else {
+    if (switchPrev) {
+      digitalWrite(relay, LOW);
+      switchPrev = false;
     }
 
-  buttonCurrent = digitalRead(button);
+    buttonCurrent = digitalRead(button);
 
-  if (buttonCurrent == HIGH && millis() - timeer > debounce){
-    buttonPushedMillis = currentMillis;
-    filterOff();
-  }
+    if (buttonCurrent == HIGH && millis() - timeer > debounce) {
+      buttonPushedMillis = currentMillis;
+      filterOff();
+    }
+    
+    if (ledState) {
+      if ((unsigned long)(currentMillis - ledTurnedOnAt) >= warningTime) {
+        digitalWrite(warningLed, HIGH);
+      }
 
-  if (ledState) {
-   if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay) {
-     ledState = false;
-     digitalWrite(led, LOW);
-   }
- }
+      if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay) {
+        ledState = false;
+        digitalWrite(relay, LOW);
+        digitalWrite(warningLed, LOW);
+      }
+    }
   }
 }
