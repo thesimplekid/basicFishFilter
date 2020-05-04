@@ -1,8 +1,6 @@
-
-
 int relay = 15;
-int button = 5;
-int switchPin = 4;
+int button = 5;//yellow
+int switchPin = 4; //orange left most
 int warningLed = 2;
 
 int ledState = HIGH;
@@ -12,7 +10,7 @@ unsigned long buttonPushedMillis;
 unsigned long ledTurnedOnAt;
 unsigned long currentMillis;
 
-unsigned long turnOffDelay = 10000;
+unsigned long turnOffDelay = 1800000;
 unsigned long warningTime = 5000;
 
 long timeer = 0;
