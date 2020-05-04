@@ -1,36 +1,33 @@
-int relay = 15;
+int relayPin = 15;
 int button = 5;//yellow
 int switchPin = 4; //orange left most
-int warningLed = 2;
 
-int ledState = HIGH;
+int relayState = HIGH;
 int buttonCurrent;
 
 unsigned long buttonPushedMillis;
-unsigned long ledTurnedOnAt;
+unsigned long relayTurnedOnAt;
 unsigned long currentMillis;
 
 unsigned long turnOffDelay = 1800000;
-unsigned long warningTime = 5000;
 
-long timeer = 0;
+long timer = 0;
 long debounce = 200;
 
-boolean ledSwitch;
+boolean relaySwitch;
 boolean switchPrev;
 
 void setup() {
   pinMode(button, INPUT);
-  pinMode(relay, OUTPUT);
+  pinMode(relayPin, OUTPUT);
   pinMode(switchPin, INPUT);
-  pinMode(warningLed, OUTPUT);
 }
 
 void filterOff() {
-  digitalWrite(relay, HIGH);
-  ledState = true;
+  digitalWrite(relayPin, HIGH);
+  relayState = true;
   // save when the LED turned on
-  ledTurnedOnAt = currentMillis;
+  relayTurnedOnAt = currentMillis;
 }
 
 boolean switchOnOff() {
@@ -46,33 +43,28 @@ boolean switchOnOff() {
 
 void loop() {
   currentMillis = millis();
-  ledSwitch = switchOnOff();
+  relaySwitch = switchOnOff();
 
-  if (!ledSwitch) {
-    digitalWrite(relay, HIGH);
+  if (!relaySwitch) {
+    digitalWrite(relayPin, HIGH);
     switchPrev = true;
   } else {
     if (switchPrev) {
-      digitalWrite(relay, LOW);
+      digitalWrite(relayPin, LOW);
       switchPrev = false;
     }
 
     buttonCurrent = digitalRead(button);
 
-    if (buttonCurrent == HIGH && millis() - timeer > debounce) {
+    if (buttonCurrent == HIGH && millis() - timer > debounce) {
       buttonPushedMillis = currentMillis;
       filterOff();
     }
     
-    if (ledState) {
-      if ((unsigned long)(currentMillis - ledTurnedOnAt) >= warningTime) {
-        digitalWrite(warningLed, HIGH);
-      }
-
-      if ((unsigned long)(currentMillis - ledTurnedOnAt) >= turnOffDelay) {
-        ledState = false;
-        digitalWrite(relay, LOW);
-        digitalWrite(warningLed, LOW);
+    if (relayState) {
+      if ((unsigned long)(currentMillis - relayTurnedOnAt) >= turnOffDelay) {
+        relayState = false;
+        digitalWrite(relayPin, LOW);
       }
     }
   }
