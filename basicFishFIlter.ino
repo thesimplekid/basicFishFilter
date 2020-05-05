@@ -1,11 +1,10 @@
 int relayPin = 15;
-int button = 5;//yellow
-int switchPin = 4; //orange left most
+int buttonPin = 5;
+int switchPin = 4; 
 
 int relayState = HIGH;
 int buttonCurrent;
 
-unsigned long buttonPushedMillis;
 unsigned long relayTurnedOnAt;
 unsigned long currentMillis;
 
@@ -18,28 +17,24 @@ boolean relaySwitch;
 boolean switchPrev;
 
 void setup() {
-  pinMode(button, INPUT);
+  pinMode(buttonPin, INPUT);
   pinMode(relayPin, OUTPUT);
   pinMode(switchPin, INPUT);
-}
+}//end setup
 
-void filterOff() {
-  digitalWrite(relayPin, HIGH);
-  relayState = true;
-  // save when the LED turned on
-  relayTurnedOnAt = currentMillis;
-}
 
 boolean switchOnOff() {
   boolean  switchState ;
+  
   if (digitalRead(switchPin) == HIGH) {
     switchState = true;
   } else {
     switchState = false;
-  }
+  }//end else
 
   return switchState;
-}
+}//end switchOnOff
+
 
 void loop() {
   currentMillis = millis();
@@ -52,20 +47,22 @@ void loop() {
     if (switchPrev) {
       digitalWrite(relayPin, LOW);
       switchPrev = false;
-    }
+    }//end if
 
-    buttonCurrent = digitalRead(button);
+    buttonCurrent = digitalRead(buttonPin);
 
     if (buttonCurrent == HIGH && millis() - timer > debounce) {
-      buttonPushedMillis = currentMillis;
-      filterOff();
-    }
+      digitalWrite(relayPin, HIGH);
+      relayState = true;
+      relayTurnedOnAt = currentMillis;
+    }//end if
     
     if (relayState) {
       if ((unsigned long)(currentMillis - relayTurnedOnAt) >= turnOffDelay) {
         relayState = false;
         digitalWrite(relayPin, LOW);
-      }
-    }
-  }
-}
+      }//end innerif
+    }//end outer if
+    
+  }//end Else
+}//end loop
